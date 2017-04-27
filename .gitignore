@@ -1,3 +1,4 @@
 *.env
 bin
 docker-compose.yml
+vendor
