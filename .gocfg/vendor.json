@@ -1,4 +1,17 @@
 {
-  "GitRepos": {},
+  "GitRepos": {
+    "vendor/src/github.com/influxdata/influxdb": {
+      "URI": "https://github.com/influxdata/influxdb",
+      "Ref": "a736f186f0b1ba494943f9c778fee9ddfd2c2761"
+    },
+    "vendor/src/github.com/satori-com/satori-rtm-sdk-go": {
+      "URI": "https://github.com/satori-com/satori-rtm-sdk-go",
+      "Ref": "88f3672f23bb106ef31106858d89a035f82c0ce6"
+    },
+    "vendor/src/golang.org/x/net": {
+      "URI": "https://go.googlesource.com/net",
+      "Ref": "da118f7b8e5954f39d0d2130ab35d4bf0e3cb344"
+    }
+  },
   "MercurialRepos": {}
 }
