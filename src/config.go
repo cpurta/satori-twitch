@@ -27,12 +27,26 @@ func LoadConfig() (*Config, error) {
 	influxPassword := GetEnvironmentVariable("INFLUXDB_PASSWORD")
 	influxDatabase := GetEnvironmentVariable("INFLUXDB_DATABASE")
 	twitchToken, err := GetRequiredEnvironmentVariable("TWITCH_TOKEN")
+	if err != nil {
+		return nil, err
+	}
 	satoriChannel, err := GetRequiredEnvironmentVariable("SATORI_CHANNEL")
+	if err != nil {
+		return nil, err
+	}
 	satoriEndpoint, err := GetRequiredEnvironmentVariable("SATORI_ENDPOINT")
+	if err != nil {
+		return nil, err
+	}
 	satoriAppKey, err := GetRequiredEnvironmentVariable("SATORI_APP_KEY")
+	if err != nil {
+		return nil, err
+	}
 	satoriRole, err := GetRequiredEnvironmentVariable("SATORI_ROLE")
+	if err != nil {
+		return nil, err
+	}
 	satoriSecret, err := GetRequiredEnvironmentVariable("SATORI_SECRET")
-
 	if err != nil {
 		return nil, err
 	}
