@@ -21,11 +21,11 @@ type Config struct {
 
 func LoadConfig() (*Config, error) {
 	var err error
-	influxAddr, err := GetRequiredEnvironmentVariable("INFLUXDB_PORT_8086_TCP_ADDR")
-	influxPort, err := GetRequiredEnvironmentVariable("INFLUXDB_PORT_8086_TCP_PORT")
-	influxUsername, err := GetRequiredEnvironmentVariable("INFLUXDB_USERNAME")
-	influxPassword, err := GetRequiredEnvironmentVariable("INFLUXDB_PASSWORD")
-	influxDatabase, err := GetRequiredEnvironmentVariable("INFLUXDB_DATABASE")
+	influxAddr := GetEnvironmentVariable("INFLUXDB_PORT_8086_TCP_ADDR")
+	influxPort := GetEnvironmentVariable("INFLUXDB_PORT_8086_TCP_PORT")
+	influxUsername := GetEnvironmentVariable("INFLUXDB_USERNAME")
+	influxPassword := GetEnvironmentVariable("INFLUXDB_PASSWORD")
+	influxDatabase := GetEnvironmentVariable("INFLUXDB_DATABASE")
 	twitchToken, err := GetRequiredEnvironmentVariable("TWITCH_TOKEN")
 	satoriChannel, err := GetRequiredEnvironmentVariable("SATORI_CHANNEL")
 	satoriEndpoint, err := GetRequiredEnvironmentVariable("SATORI_ENDPOINT")
@@ -62,4 +62,8 @@ func GetRequiredEnvironmentVariable(varName string) (string, error) {
 	}
 
 	return v, nil
+}
+
+func GetEnvironmentVariable(key string) string {
+	return os.Getenv(key)
 }

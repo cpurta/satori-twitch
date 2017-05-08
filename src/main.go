@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -16,9 +17,14 @@ var (
 	pointChan       chan *client.Point
 	batchPoints     client.BatchPoints
 	batchPointsLock sync.Mutex
+
+	noinflux bool
 )
 
 func main() {
+	initFlags()
+	flag.Parse()
+
 	config, err := LoadConfig()
 
 	if err != nil {
@@ -29,14 +35,17 @@ func main() {
 		fmt.Printf("Environment Configuration:\n%s\n", string(confBytes))
 	}
 
-	influxClient, err := client.NewHTTPClient(client.HTTPConfig{
-		Addr:     fmt.Sprintf("http://%s:%s", config.InfluxAddr, config.InfluxPort),
-		Username: config.InfluxUsername,
-		Password: config.InfluxPassword,
-	})
-	if err != nil {
-		fmt.Println("Error connecting to InfluxDB:", err.Error())
-		os.Exit(2)
+	var influxClient client.Client
+	if !noinflux {
+		influxClient, err = client.NewHTTPClient(client.HTTPConfig{
+			Addr:     fmt.Sprintf("http://%s:%s", config.InfluxAddr, config.InfluxPort),
+			Username: config.InfluxUsername,
+			Password: config.InfluxPassword,
+		})
+		if err != nil {
+			fmt.Println("Error connecting to InfluxDB:", err.Error())
+			os.Exit(2)
+		}
 	}
 
 	publishChan := make(chan PublishEvent)
@@ -69,6 +78,10 @@ func main() {
 	close(shutdown)
 
 	log.Println("Shutting down...")
+}
+
+func initFlags() {
+	flag.BoolVar(&noinflux, "noinflux", false, "Make a connection to InfluxDB via the environment config (default: false)")
 }
 
 func getConsumers(config *Config, pub chan PublishEvent) []TwitchAPIConsumer {
@@ -118,9 +131,11 @@ func reportInfluxStats(influxClient *client.Client, database string, shutdown ch
 
 	for range ticker.C {
 		log.Println("Writing points to InfluxDB")
-		err := (*influxClient).Write(batchPoints)
-		if err != nil {
-			log.Println("Error writing batch points to InfluxDB:", err.Error())
+		if !noinflux {
+			err := (*influxClient).Write(batchPoints)
+			if err != nil {
+				log.Println("Error writing batch points to InfluxDB:", err.Error())
+			}
 		}
 
 		batchPointsLock.Lock()
