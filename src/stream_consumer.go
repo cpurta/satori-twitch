@@ -141,8 +141,10 @@ func (sc StreamsConsumer) PushStreamsToChannel(streams []StreamResponse) {
 			Data: stream,
 		}
 
-		tags, fields := stream.InfluxPoint()
-		sendStatsToInflux("streams_consumer", tags, fields)
+		if !noinflux {
+			tags, fields := stream.InfluxPoint()
+			sendStatsToInflux("streams_consumer", tags, fields)
+		}
 
 		sc.PublishChan <- event
 	}

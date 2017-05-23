@@ -118,8 +118,10 @@ func (gc GamesConsumer) PushGamesToChannel(games []GameResponse) {
 			Data: game,
 		}
 
-		tags, fields := game.InfluxPoint()
-		sendStatsToInflux("games_consumer", tags, fields)
+		if !noinflux {
+			tags, fields := game.InfluxPoint()
+			sendStatsToInflux("games_consumer", tags, fields)
+		}
 
 		gc.PublishChan <- event
 	}

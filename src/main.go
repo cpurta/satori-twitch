@@ -27,6 +27,8 @@ func main() {
 
 	config, err := LoadConfig()
 
+	log.Println("--no-influx:", noinflux)
+
 	if err != nil {
 		fmt.Println("Error encountered while loading configuration:", err.Error())
 		os.Exit(1)
@@ -62,7 +64,9 @@ func main() {
 	shutdown := make(chan bool, 1)
 	go listenForShutdown(producer, consumers, shutdown)
 
-	go reportInfluxStats(&influxClient, config.InfluxDatabase, shutdown)
+	if !noinflux {
+		go reportInfluxStats(&influxClient, config.InfluxDatabase, shutdown)
+	}
 
 	var wg sync.WaitGroup
 	for _, c := range consumers {
@@ -81,7 +85,7 @@ func main() {
 }
 
 func initFlags() {
-	flag.BoolVar(&noinflux, "noinflux", false, "Make a connection to InfluxDB via the environment config (default: false)")
+	flag.BoolVar(&noinflux, "no-influx", false, "Make a connection to InfluxDB via the environment config (default: false)")
 }
 
 func getConsumers(config *Config, pub chan PublishEvent) []TwitchAPIConsumer {
@@ -131,11 +135,9 @@ func reportInfluxStats(influxClient *client.Client, database string, shutdown ch
 
 	for range ticker.C {
 		log.Println("Writing points to InfluxDB")
-		if !noinflux {
-			err := (*influxClient).Write(batchPoints)
-			if err != nil {
-				log.Println("Error writing batch points to InfluxDB:", err.Error())
-			}
+		err := (*influxClient).Write(batchPoints)
+		if err != nil {
+			log.Println("Error writing batch points to InfluxDB:", err.Error())
 		}
 
 		batchPointsLock.Lock()

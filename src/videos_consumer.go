@@ -45,9 +45,9 @@ type VideoResponse struct {
 }
 
 type VideoChannel struct {
-	ID          string `json:"_id"`
-	DisplayName string `json:"display_name"`
-	Name        string `json:"name"`
+	ID          float64 `json:"_id"`
+	DisplayName string  `json:"display_name"`
+	Name        string  `json:"name"`
 }
 
 func (video *VideoResponse) InfluxPoint() (map[string]string, map[string]interface{}) {
@@ -128,8 +128,10 @@ func (vc VideosConsumer) PushStreamsToChannel(videos []VideoResponse) {
 			Data: video,
 		}
 
-		tags, fields := video.InfluxPoint()
-		sendStatsToInflux("videos_consumer", tags, fields)
+		if !noinflux {
+			tags, fields := video.InfluxPoint()
+			sendStatsToInflux("videos_consumer", tags, fields)
+		}
 
 		vc.PublishChan <- event
 	}

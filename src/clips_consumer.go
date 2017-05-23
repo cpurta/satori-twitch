@@ -123,8 +123,10 @@ func (cc ClipsConsumer) PushClipsToChannel(clips ClipsConsumerResponse) {
 			Data: clip,
 		}
 
-		tags, fields := clip.InfluxPoint()
-		sendStatsToInflux("clips_consumer", tags, fields)
+		if !noinflux {
+			tags, fields := clip.InfluxPoint()
+			sendStatsToInflux("clips_consumer", tags, fields)
+		}
 
 		cc.PublishChan <- event
 	}
