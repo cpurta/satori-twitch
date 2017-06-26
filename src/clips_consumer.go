@@ -73,8 +73,6 @@ func (cc ClipsConsumer) Consume() {
 	for !cc.shutdown {
 		log.Println("ClipsConsumer making request...")
 
-		fields := make(map[string]interface{})
-		tags := map[string]string{"consumer_type": "clips_consumer"}
 		req, err := http.NewRequest("GET", cc.Endpoint, nil)
 		if err != nil {
 			log.Println("Error creating Clips request:", err.Error())
@@ -83,13 +81,10 @@ func (cc ClipsConsumer) Consume() {
 		req.Header.Add("accept", "application/vnd.twitchtv.v5+json")
 		req.Header.Add("client-id", cc.TwitchToken)
 
-		start := time.Now()
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			log.Println("Error making clips request:", err.Error())
 		}
-		fields["response_time"] = time.Since(start)
-		fields["reponse_code"] = res.StatusCode
 
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
@@ -105,7 +100,6 @@ func (cc ClipsConsumer) Consume() {
 		}
 
 		res.Body.Close()
-		sendStatsToInflux("consumers", tags, fields)
 		time.Sleep(time.Duration(cc.RequestInterval) * time.Second)
 	}
 
@@ -121,11 +115,6 @@ func (cc ClipsConsumer) PushClipsToChannel(clips ClipsConsumerResponse) {
 		event := PublishEvent{
 			Type: "clip",
 			Data: clip,
-		}
-
-		if !noinflux {
-			tags, fields := clip.InfluxPoint()
-			sendStatsToInflux("clips_consumer", tags, fields)
 		}
 
 		cc.PublishChan <- event

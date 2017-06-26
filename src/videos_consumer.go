@@ -78,8 +78,6 @@ func DefaultVideosConsumer(pubChan chan PublishEvent, config *Config) *VideosCon
 func (vc VideosConsumer) Consume() {
 	for !vc.shutdown {
 		log.Println("VideosConsumer making request...")
-		fields := make(map[string]interface{})
-		tags := map[string]string{"consumer_type": "videos_consumer"}
 		req, err := http.NewRequest("GET", vc.Endpoint, nil)
 		if err != nil {
 			log.Println("Error creating Videos request:", err.Error())
@@ -88,13 +86,10 @@ func (vc VideosConsumer) Consume() {
 		req.Header.Add("accept", "application/vnd.twitchtv.v5+json")
 		req.Header.Add("client-id", vc.TwitchToken)
 
-		start := time.Now()
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			log.Println("Error making clips request:", err.Error())
 		}
-		fields["response_time"] = time.Since(start)
-		fields["reponse_code"] = res.StatusCode
 
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
@@ -110,7 +105,6 @@ func (vc VideosConsumer) Consume() {
 		}
 
 		res.Body.Close()
-		sendStatsToInflux("consumers", tags, fields)
 		time.Sleep(time.Duration(vc.RequestInterval) * time.Second)
 	}
 
@@ -126,11 +120,6 @@ func (vc VideosConsumer) PushStreamsToChannel(videos []VideoResponse) {
 		event := PublishEvent{
 			Type: "video",
 			Data: video,
-		}
-
-		if !noinflux {
-			tags, fields := video.InfluxPoint()
-			sendStatsToInflux("videos_consumer", tags, fields)
 		}
 
 		vc.PublishChan <- event

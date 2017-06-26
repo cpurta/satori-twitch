@@ -6,11 +6,6 @@ import (
 )
 
 type Config struct {
-	InfluxAddr        string `json:"influx_address"`
-	InfluxPort        string `json:"influx_port"`
-	InfluxUsername    string `json:"influx_username"`
-	InfluxPassword    string `json:"influx_password"`
-	InfluxDatabase    string `json:"influx_database"`
 	TwitchAPIToken    string `json:"twitch_token"`
 	SatoriChannelName string `json:"satori_channel_name"`
 	SatoriEndpoint    string `json:"satori_endpoint"`
@@ -21,11 +16,6 @@ type Config struct {
 
 func LoadConfig() (*Config, error) {
 	var err error
-	influxAddr := GetEnvironmentVariable("INFLUXDB_PORT_8086_TCP_ADDR")
-	influxPort := GetEnvironmentVariable("INFLUXDB_PORT_8086_TCP_PORT")
-	influxUsername := GetEnvironmentVariable("INFLUXDB_USERNAME")
-	influxPassword := GetEnvironmentVariable("INFLUXDB_PASSWORD")
-	influxDatabase := GetEnvironmentVariable("INFLUXDB_DATABASE")
 	twitchToken, err := GetRequiredEnvironmentVariable("TWITCH_TOKEN")
 	if err != nil {
 		return nil, err
@@ -52,11 +42,6 @@ func LoadConfig() (*Config, error) {
 	}
 
 	conf := &Config{
-		InfluxAddr:        influxAddr,
-		InfluxPort:        influxPort,
-		InfluxUsername:    influxUsername,
-		InfluxPassword:    influxPassword,
-		InfluxDatabase:    influxDatabase,
 		TwitchAPIToken:    twitchToken,
 		SatoriChannelName: satoriChannel,
 		SatoriEndpoint:    satoriEndpoint,

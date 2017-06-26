@@ -91,8 +91,6 @@ func (sc StreamsConsumer) Consume() {
 	for !sc.shutdown {
 		log.Println("StreamsConsumer making request...")
 
-		fields := make(map[string]interface{})
-		tags := map[string]string{"consumer_type": "streams_consumer"}
 		req, err := http.NewRequest("GET", sc.Endpoint, nil)
 		if err != nil {
 			log.Println("Error creating Streams request:", err.Error())
@@ -101,13 +99,10 @@ func (sc StreamsConsumer) Consume() {
 		req.Header.Add("accept", "application/vnd.twitchtv.v5+json")
 		req.Header.Add("client-id", sc.TwitchToken)
 
-		start := time.Now()
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			log.Println("Error making clips request:", err.Error())
 		}
-		fields["response_time"] = time.Since(start)
-		fields["reponse_code"] = res.StatusCode
 
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
@@ -123,7 +118,6 @@ func (sc StreamsConsumer) Consume() {
 		}
 
 		res.Body.Close()
-		sendStatsToInflux("consumers", tags, fields)
 		time.Sleep(time.Duration(sc.RequestInterval) * time.Second)
 	}
 
@@ -139,11 +133,6 @@ func (sc StreamsConsumer) PushStreamsToChannel(streams []StreamResponse) {
 		event := PublishEvent{
 			Type: "stream",
 			Data: stream,
-		}
-
-		if !noinflux {
-			tags, fields := stream.InfluxPoint()
-			sendStatsToInflux("streams_consumer", tags, fields)
 		}
 
 		sc.PublishChan <- event
