@@ -102,11 +102,13 @@ func (sc StreamsConsumer) Consume() {
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			log.Println("Error making clips request:", err.Error())
+			continue
 		}
 
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
 			log.Println("Error reading clips response:", err.Error())
+			continue
 		}
 
 		var streamResponse StreamsConsumerResponse
