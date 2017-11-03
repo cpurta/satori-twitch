@@ -26,21 +26,22 @@ type ClipsConsumerResponse struct {
 }
 
 type ClipResponse struct {
-	Slug        string            `json:"slug"`
-	TrackingID  string            `json:"tracking_id"`
-	URL         string            `json:"url"`
-	EmbedURL    string            `json:"embed_url"`
-	EmbedHTML   string            `json:"embed_html"`
-	Broadcaster map[string]string `json:"broadcaster"`
-	Curator     map[string]string `json:"curator"`
-	VOD         map[string]string `json:"vod"`
-	Game        string            `json:"game"`
-	Language    string            `json:"language"`
-	Title       string            `json:"title"`
-	Views       float64           `json:"views"`
-	Duration    float64           `json:"duration"`
-	CreatedAt   string            `json:"created_at"`
-	Thumbnails  map[string]string `json:"thumbnails"`
+	Slug        string                 `json:"slug"`
+	TrackingID  string                 `json:"tracking_id"`
+	URL         string                 `json:"url"`
+	EmbedURL    string                 `json:"embed_url"`
+	EmbedHTML   string                 `json:"embed_html"`
+	Broadcaster map[string]string      `json:"broadcaster"`
+	Curator     map[string]string      `json:"curator"`
+	VOD         map[string]interface{} `json:"vod"`
+	BroadcastID string                 `json:"broadcast_id"`
+	Game        string                 `json:"game"`
+	Language    string                 `json:"language"`
+	Title       string                 `json:"title"`
+	Views       float64                `json:"views"`
+	Duration    float64                `json:"duration"`
+	CreatedAt   string                 `json:"created_at"`
+	Thumbnails  map[string]string      `json:"thumbnails"`
 }
 
 func (clip *ClipResponse) InfluxPoint() (map[string]string, map[string]interface{}) {
